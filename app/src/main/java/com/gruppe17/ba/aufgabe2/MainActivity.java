@@ -56,6 +56,8 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BluetoothDevice device = (BluetoothDevice) parent.getAdapter().getItem(position);
+                BTClient btClient = new BTClient(getApplicationContext());
+                btClient.connect(device);
             }
         });
 
@@ -95,16 +97,16 @@ public class MainActivity extends Activity {
                 btAdapter.startDiscovery();
                 break;
             case REQUEST_ENABLE_DISC:
-
+                BTServer server = new BTServer(getApplicationContext());
+                server.start();
                 break;
         }
     }
 
 
     public void startServer(View view) {
-        BTServer server = new BTServer();
-
-        server.start();
+        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        startActivityForResult(intent, REQUEST_ENABLE_DISC);
     }
 
 

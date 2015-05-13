@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,15 +21,21 @@ public class BTClient extends Thread {
     private BluetoothAdapter btAdapter;
     private Context mainContext;
 
-    public BTClient(Context context, BluetoothDevice device) {
+    public BTClient(Context context) {
         mainContext = context;
-        serverDevice = device;
         btAdapter = BluetoothAdapter.getDefaultAdapter();
+    }
+
+
+    public void connect(BluetoothDevice device) {
+        serverDevice = device;
+
         try {
             btSocket = device.createRfcommSocketToServiceRecord(UUID.fromString(BTServer.BTUUID));
         } catch (IOException ex) {
             Log.i("error", ex.getMessage());
         }
+        start();
     }
 
 
@@ -36,9 +43,12 @@ public class BTClient extends Thread {
     public void run() {
 
         btAdapter.cancelDiscovery();
+        Looper.prepare();
         try {
             btSocket.connect();
-            Toast.makeText(mainContext, "Verbindung wurde aufgebaut!", Toast.LENGTH_SHORT);
+            Toast.makeText(mainContext, "Verbindung wurde aufgebaut!", Toast.LENGTH_SHORT).show();
+            Log.i("client", "client connected");
+            Looper.loop();
         } catch (Exception ex) {
             Log.i("error", ex.getMessage());
         }
